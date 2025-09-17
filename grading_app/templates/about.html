@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - AutoGrader</title>
+    <title>About Us - AutoGrader</title>
     <style>
         /* CORE STYLES & REUSABLE COMPONENTS */
         * {
@@ -22,7 +22,7 @@
 
         .container {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 35px;
             padding: 0 20px;
         }
 
@@ -108,103 +108,97 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
         }
 
+        .btn-secondary {
+            background: transparent;
+            color: #1a1a1a;
+            border: 2px solid #e5e5e5;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.25);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 24px;
             padding: 3rem;
-            padding-left: 80px;
-            padding-right: 80px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            width: 100%;
-            max-width: 450px;
-            margin: 0 auto;
-        }
-        /* Floating Elements */
-        .floating-element {
-            position: absolute;
-            opacity: 2;
-            animation: float 6s ease-in-out infinite;
         }
 
-        .floating-element:nth-child(1) {
-            top: 20%;
-            right: 10%;
-            animation-delay: 0s;
-        }
-
-        .floating-element:nth-child(2) {
-            bottom: 30%;
-            left: 5%;
-            animation-delay: 2s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+        /* About Page Specific Styles */
+        .about-section {
+            padding: 6rem 0;
+            text-align: center;
         }
         
-        /* Login Form Specific Styles */
-        .login-section {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding-top: 80px;
+        .about-section h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
         }
-        
-        .login-section h2 {
+
+        .about-section h2 {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 2rem;
-            text-align: center;
             color: #1a1a1a;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
         }
         
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #4a4a4a;
+        .about-text {
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+            color: #666;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
         }
 
-        .form-group input {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #999;
-        }
-
-        .text-center {
+        .team-member {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
             text-align: center;
+            transition: all 0.3s ease;
         }
 
-        .link {
-            display: block;
-            margin-top: 1rem;
-            color: #4a4a4a;
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: color 0.3s ease;
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
-        .link:hover {
-            color: #1a1a1a;
+        .team-member-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1.5rem;
+            border: 4px solid #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-member h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-member p {
+            font-size: 0.9rem;
+            color: #666;
         }
 
         /* Footer */
@@ -283,12 +277,36 @@
         .social-links a:hover {
             color: #fff;
         }
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            opacity: 2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            top: 20%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            bottom: 30%;
+            left: 5%;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
+
             .footer-bottom {
                 text-align: center;
                 flex-direction: column;
@@ -310,29 +328,17 @@
             </div>
         </div>
     </nav>
+    
 
-    <main class="login-section">
+    <main class="about-section">
         <div class="container">
-            <div class="glass-card">
-                <div class="text-center">
-                    <h2>  AutoGrader   </h2>
-                </div>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password">
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
-                </form>
-                <a href="/signup/" class="link text-center">Don't have an account? Sign up</a>
-            </div>
+            <h1>About AutoGrader</h1>
+            <p class="about-text">
+                At AutoGrader, we believe that education should be about connection, not paperwork. Our mission is to empower educators by automating the time-consuming task of grading, so they can focus on what truly matters: teaching and mentoring their students.
+            </p>
+            ---
+            
+          
         </div>
     </main>
     <footer class="footer">
@@ -347,27 +353,18 @@
                     <h3>Quick Links</h3>
                     <ul class="footer-links">
                         <li><a href="/about/">About Us</a></li>
-                        <li><a href="/contact/">Contact</a></li>
-                        <li><a href="/support/">Support</a></li>
-                        <li><a href="/blog/">Blog</a></li>
+                       
                     </ul>
                 </div>
                 
-                <div class="footer-section">
-                    <h3>Legal</h3>
-                    <ul class="footer-links">
-                        <li><a href="/privacy/">Privacy Policy</a></li>
-                        <li><a href="/terms/">Terms of Service</a></li>
-                        <li><a href="/cookies/">Cookie Policy</a></li>
-                    </ul>
-                </div>
+               
                 
                 <div class="footer-section">
                     <h3>Get Started</h3>
                     <ul class="footer-links">
                         <li><a href="/signup/">Sign Up</a></li>
                         <li><a href="/login/">Login</a></li>
-                        <li><a href="/demo/">Request Demo</a></li>
+                     
                     </ul>
                 </div>
             </div>
