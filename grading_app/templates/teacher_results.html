@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Grading History - AutoGrader</title>
+    <style>
+        /* === General Styles === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            color: #1a1a1a;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* === Navbar === */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .nav-container {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem;
+        }
+        .logo {
+            font-size: 1.5rem; font-weight: 700; color: #1a1a1a;
+            text-decoration: none; letter-spacing: -0.5px;
+        }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a {
+            color: #1a1a1a; text-decoration: none; font-weight: 500;
+            font-size: 0.95rem; padding: 0.5rem 1.5rem;
+            border-radius: 25px; transition: all 0.3s ease;
+        }
+        .nav-links a:hover { background: rgba(0, 0, 0, 0.05); transform: translateY(-1px); }
+
+        .user-profile {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.5rem 1rem; border-radius: 25px;
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.9rem; font-weight: 600;
+        }
+        .logout-btn {
+            font-size: 1.2rem; text-decoration: none; color: #1a1a1a;
+            padding: 0.5rem 1rem; border-radius: 50%;
+            background: rgba(0,0,0,0.05); transition: all 0.3s ease;
+        }
+        .logout-btn:hover { background: rgba(0,0,0,0.15); transform: translateY(-2px); }
+
+        /* === Page Header === */
+        .page-header { padding: 120px 0 40px; text-align: left; }
+        .page-header h1 {
+            font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .page-header p { font-size: 1.1rem; color: #666; }
+
+        /* === Card & Table === */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px; padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            margin-bottom: 3rem;
+        }
+        .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+        .card-icon { font-size: 2rem; }
+        .card-header h2 { font-size: 1.5rem; font-weight: 700; color: #1a1a1a; }
+
+        .sample-table { background: rgba(255, 255, 255, 0.4); border-radius: 16px; padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+        .table th { background: rgba(255, 255, 255, 0.3); font-weight: 600; }
+        .table td { color: #444; }
+        .table tr:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .export-buttons { display: flex; gap: 1rem; margin-top: 1rem; }
+        .btn {
+            padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600;
+            text-decoration: none; transition: all 0.3s ease;
+            font-size: 0.9rem; border: 2px solid transparent;
+            cursor: pointer; display: inline-block;
+        }
+        .btn-secondary {
+            background: transparent; color: #1a1a1a; border-color: #e5e5e5;
+        }
+        .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.05); border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+
+        /* === Footer === */
+        .footer { background: #1a1a1a; color: #fff; padding: 3rem 0 2rem; margin-top: 4rem; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .footer-section h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; color: #fff; }
+        .footer-section p { color: #ccc; line-height: 1.6; margin-bottom: 1rem; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.5rem; }
+        .footer-links a { color: #ccc; text-decoration: none; transition: color 0.3s ease; }
+        .footer-links a:hover { color: #fff; }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .footer-bottom p { color: #999; font-size: 0.9rem; }
+        .social-links { display: flex; gap: 1rem; }
+        .social-links a { color: #999; font-size: 1.2rem; text-decoration: none; transition: color 0.3s ease; }
+        .social-links a:hover { color: #fff; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .page-header h1 { font-size: 2rem; }
+            .glass-card { padding: 1.5rem; }
+            .sample-table { font-size: 0.9rem; }
+            .table th, .table td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <div class="nav-container">
+        <a href="/" class="logo">AutoGrader</a>
+        <div class="nav-links">
+            <a href="{% url 'teacher_dashboard' %}">Dashboard</a>
+            <a href="{% url 'teacher_results' %}">Grading History</a>
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                </div>
+                <span>{{ request.user.first_name|default:request.user.username }}</span>
+            </div>
+            <a href="/logout/" class="logout-btn" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+</nav>
+
+<section class="page-header">
+    <div class="container">
+        <h1>Grading History</h1>
+        <p>Review and export results from previously graded answer sheets.</p>
+    </div>
+</section>
+
+<section class="container">
+    <div class="glass-card">
+        <div class="card-header">
+            <span class="card-icon">📊</span>
+            <h2>Submissions</h2>
+        </div>
+        <p>Total uploads: {{ all_uploads.count }}</p>
+
+        <div class="results-content">
+            <div class="sample-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                          
+                            <th>Upload Date</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                   <tbody>
+{% for upload in all_uploads %}
+    <tr>
+      
+        <td>{{ upload.uploaded_at|date:"Y-m-d H:i A" }}</td>
+
+        <td>
+            {% if upload.status == "GRADED" %}
+                ✅ Graded
+            {% elif upload.status == "FAILED" %}
+                ❌ Failed
+            {% else %}
+                ⏳ Processing...
+            {% endif %}
+        </td>
+
+        <td>
+            {% if upload.status == "GRADED" and upload.grading_result %}
+                {{ upload.grading_result.total_marks_awarded }}/{{ upload.grading_result.total_possible_marks }}
+            {% else %}
+                --
+            {% endif %}
+        </td>
+
+        <td>
+            {% if upload.status == "GRADED" and upload.grading_result %}
+                <a href="{% url 'detailed_grading' upload.id %}">View Result</a>
+            {% elif upload.status == "FAILED" %}
+                <span style="color:red;">Check Logs</span>
+            {% else %}
+                Processing...
+            {% endif %}
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="5">No uploads yet.</td>
+    </tr>
+{% endfor %}
+</tbody>
+
+                </table>
+            </div>
+
+            <div class="export-buttons">
+                <button class="btn btn-secondary">Export PDF</button>
+                <button class="btn btn-secondary">Export Excel</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>AutoGrader</h3>
+                <p>Simplifying the grading process for educators worldwide. Focus on teaching, we'll handle the rest.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/about/">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Get Started</h3>
+                <ul class="footer-links">
+                    <li><a href="/signup/">Sign Up</a></li>
+                    <li><a href="/login/">Login</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 AutoGrader. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#">📧</a>
+                <a href="#">🐦</a>
+                <a href="#">💼</a>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

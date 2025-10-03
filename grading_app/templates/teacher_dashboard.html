@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <title>Teacher Dashboard - AutoGrader</title>
     <style>
         * {
@@ -184,7 +186,8 @@
             position: relative;
         }
 
-        .file-input {
+        /* This hides the actual file input rendered by Django's form field */
+        .file-input input[type="file"] {
             opacity: 0;
             position: absolute;
             z-index: -1;
@@ -240,115 +243,7 @@
             box-shadow: none;
         }
 
-        /* Results Section */
-        .results-content {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .results-list {
-            list-style: none;
-        }
-
-        .results-list li {
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .results-list li:hover {
-            background: rgba(255, 255, 255, 0.6);
-            transform: translateX(5px);
-        }
-
-        .result-text {
-            color: #1a1a1a;
-            font-weight: 500;
-        }
-
-        .result-link {
-            color: #1a1a1a;
-            text-decoration: none;
-            font-weight: 500;
-            border-bottom: 1px solid #1a1a1a;
-            transition: opacity 0.3s ease;
-        }
-
-        .result-link:hover {
-            opacity: 0.7;
-        }
-
-        .export-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            border: 2px solid transparent;
-            cursor: pointer;
-            display: inline-block;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: #1a1a1a;
-            border-color: #e5e5e5;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: #d1d5db;
-            transform: translateY(-1px);
-        }
-
-        /* Sample Table */
-        .sample-table {
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            overflow-x: auto;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th,
-        .table td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        .table th {
-            background: rgba(255, 255, 255, 0.3);
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .table td {
-            color: #666;
-        }
-
-        .table tr:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
- /* Footer */
+        /* Footer */
         .footer {
             background: #1a1a1a;
             color: #fff;
@@ -425,6 +320,44 @@
             color: #fff;
         }
 
+        /* Toast Message Styling */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #28a745; /* Green for success */
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 10000; /* High z-index to be on top */
+            left: 50%;
+            bottom: 30px;
+            font-size: 16px;
+            transition: visibility 0s, opacity 0.5s linear;
+            opacity: 0;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .logout-btn {
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: #1a1a1a;
+    padding: 0.5rem 1rem;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+
         /* Responsive */
         @media (max-width: 768px) {
             .nav-links {
@@ -442,75 +375,73 @@
             .export-buttons {
                 flex-direction: column;
             }
-
-            .sample-table {
-                font-size: 0.9rem;
-            }
-
-            .table th,
-            .table td {
-                padding: 0.5rem;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav>
-        <div class="nav-container">
-            <a href="/" class="logo">AutoGrader</a>
-            <div class="nav-links">
-                <a href="/teacher-dashboard/">Dashboard</a>
-                <a href="/grading/">Grading History</a>
-                <div class="user-profile">
-                    <div class="user-avatar">DR</div>
-                    <span>Dr. Roberts</span>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <div class="nav-container">
+        <a href="/" class="logo">AutoGrader</a>
 
-    <!-- Dashboard Header -->
+        <div class="nav-links">
+            <a href="/teacher-dashboard">Dashboard</a>
+            <a href="/teacher-results">Grading History</a>
+
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                </div>
+                <span>
+                    {{ request.user.first_name|default:request.user.username }}
+                </span>
+            </div>
+             <a href="/logout/" class="logout-btn" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+
+        </div>
+    </div>
+</nav>
+
+
     <section class="dashboard-header">
         <div class="container">
-            <h1>Teacher Dashboard</h1>
+            <h1>Welcome Back!</h1>
             <p>Upload question papers and student answers for automated grading and analysis.</p>
         </div>
     </section>
 
-    <!-- Dashboard Content -->
     <section class="container">
-        <!-- Upload Section -->
         <div class="glass-card">
             <div class="card-header">
                 <span class="card-icon">📁</span>
                 <h2>Upload Section</h2>
             </div>
             
-            <form class="upload-form">
+            <form method="post" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                
                 <div class="form-group">
                     <label class="form-label">Question Paper (PDF):</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="question-paper" class="file-input" accept=".pdf">
-                        <label for="question-paper" class="file-input-label">Choose File</label>
+                    <div class="file-input-wrapper file-input">
+                        {{ form.question_paper }} 
+                        <label for="{{ form.question_paper.id_for_label }}" class="file-input-label">Choose File</label>
                         <div class="file-status" id="question-status">No file chosen</div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Model Answer (PDF/Text):</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="model-answer" class="file-input" accept=".pdf,.txt">
-                        <label for="model-answer" class="file-input-label">Choose File</label>
+                    <div class="file-input-wrapper file-input">
+                        {{ form.model_answer }} 
+                        <label for="{{ form.model_answer.id_for_label }}" class="file-input-label">Choose File</label>
                         <div class="file-status" id="model-status">No file chosen</div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Student Answer Sheets (PDFs):</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="student-answers" class="file-input" accept=".pdf" multiple>
-                        <label for="student-answers" class="file-input-label">Choose Files</label>
+                    <div class="file-input-wrapper file-input">
+                        {{ form.student_answers }} 
+                        <label for="{{ form.student_answers.id_for_label }}" class="file-input-label">Choose Files</label>
                         <div class="file-status" id="student-status">No files chosen</div>
                     </div>
                 </div>
@@ -519,91 +450,10 @@
             </form>
         </div>
 
-        <!-- Results Section -->
-        <div class="glass-card">
-            <div class="card-header">
-                <span class="card-icon">📊</span>
-                <h2>Results</h2>
-            </div>
-            
-            <div class="results-content">
-                <ul class="results-list">
-                    <li>
-                        <span class="result-text">Student List with Grades (Sample Table)</span>
-                    </li>
-                    <li>
-                        <span class="result-text">Click to View Answer Evaluation</span>
-                        <a href="#" class="result-link">View Details</a>
-                    </li>
-                </ul>
-
-                <!-- Sample Table -->
-                <div class="sample-table">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Student Name</th>
-                                <th>Student ID</th>
-                                <th>Score</th>
-                                <th>Grade</th>
-                                <th>Submission Time</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>John Smith</td>
-                                <td>STU001</td>
-                                <td>45/60</td>
-                                <td>B</td>
-                                <td>2025-03-15 10:30 AM</td>
-                                <td>Graded</td>
-                            </tr>
-                            <tr>
-                                <td>Sarah Johnson</td>
-                                <td>STU002</td>
-                                <td>52/60</td>
-                                <td>B+</td>
-                                <td>2025-03-15 11:15 AM</td>
-                                <td>Graded</td>
-                            </tr>
-                            <tr>
-                                <td>Michael Chen</td>
-                                <td>STU003</td>
-                                <td>38/60</td>
-                                <td>C+</td>
-                                <td>2025-03-15 09:45 AM</td>
-                                <td>Graded</td>
-                            </tr>
-                            <tr>
-                                <td>Emily Davis</td>
-                                <td>STU004</td>
-                                <td>55/60</td>
-                                <td>A-</td>
-                                <td>2025-03-15 10:00 AM</td>
-                                <td>Graded</td>
-                            </tr>
-                            <tr>
-                                <td>Robert Wilson</td>
-                                <td>STU005</td>
-                                <td>--/60</td>
-                                <td>--</td>
-                                <td>2025-03-15 11:30 AM</td>
-                                <td>Processing</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="export-buttons">
-                    <button class="btn btn-secondary">Export PDF</button>
-                    <button class="btn btn-secondary">Export Excel</button>
-                </div>
-            </div>
-        </div>
     </section>
-<!-- Footer -->
-    <footer class="footer">
+    <div id="toast" class="toast">✅ Upload successful!</div>
+
+<footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
@@ -615,18 +465,14 @@
                     <h3>Quick Links</h3>
                     <ul class="footer-links">
                         <li><a href="/about/">About Us</a></li>
-                     
                     </ul>
                 </div>
-                
-               
                 
                 <div class="footer-section">
                     <h3>Get Started</h3>
                     <ul class="footer-links">
                         <li><a href="/signup/">Sign Up</a></li>
                         <li><a href="/login/">Login</a></li>
-                      
                     </ul>
                 </div>
             </div>
@@ -642,42 +488,88 @@
         </div>
     </footer>
     <script>
-        // File input handling
-        document.getElementById('question-paper').addEventListener('change', function(e) {
-            const status = document.getElementById('question-status');
-            status.textContent = e.target.files.length > 0 ? e.target.files[0].name : 'No file chosen';
-        });
+    // === FILE INPUT HANDLERS (Correct and Clean) ===
+    // These scripts correctly update the file names displayed to the user.
+    document.querySelector('input[name="question_paper"]').addEventListener('change', function(e) {
+        const status = document.getElementById('question-status');
+        status.textContent = e.target.files.length > 0 ? e.target.files[0].name : 'No file chosen';
+    });
 
-        document.getElementById('model-answer').addEventListener('change', function(e) {
-            const status = document.getElementById('model-status');
-            status.textContent = e.target.files.length > 0 ? e.target.files[0].name : 'No file chosen';
-        });
+    document.querySelector('input[name="model_answer"]').addEventListener('change', function(e) {
+        const status = document.getElementById('model-status');
+        status.textContent = e.target.files.length > 0 ? e.target.files[0].name : 'No file chosen';
+    });
 
-        document.getElementById('student-answers').addEventListener('change', function(e) {
-            const status = document.getElementById('student-status');
-            if (e.target.files.length > 0) {
-                status.textContent = `${e.target.files.length} file(s) selected`;
-            } else {
-                status.textContent = 'No files chosen';
+    document.querySelector('input[name="student_answers"]').addEventListener('change', function(e) {
+        const status = document.getElementById('student-status');
+        if (e.target.files.length > 0) {
+            status.textContent = `${e.target.files.length} file(s) selected`;
+        } else {
+            status.textContent = 'No files chosen';
+        }
+    });
+
+
+    // === FORM SUBMISSION HANDLER (The ONLY CORRECT BLOCK) ===
+    // This uses Fetch to send the files, waits for the grading to finish in Django, and then redirects.
+    document.querySelector('.upload-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const form = e.target;
+        const btn = document.querySelector('.upload-btn');
+        const toast = document.getElementById('toast');
+        
+        // 1. Show processing state
+        btn.textContent = 'Uploading & Grading...';
+        btn.disabled = true;
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                // CRUCIAL: Get CSRF token from the hidden input field
+                'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
             }
-        });
-
-        // Form submission
-        document.querySelector('.upload-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.querySelector('.upload-btn');
-            btn.textContent = 'Uploading...';
-            btn.disabled = true;
-            
-            // Simulate upload process
-            setTimeout(() => {
-                btn.textContent = 'Upload Complete!';
+        })
+        // 2. Process the response (read the JSON and get the status)
+        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        
+        // 3. Handle success or failure
+        .then(({ status, body }) => {
+            if (status >= 200 && status < 300) {
+                // SUCCESS: Uploaded and grading process started/completed
+                
+                btn.textContent = 'Grading Complete!';
+                toast.textContent = '✅ Grading Complete! Redirecting...';
+                toast.classList.add('show'); 
+                
+                // Redirect using the URL returned by the view
                 setTimeout(() => {
-                    btn.textContent = 'Upload';
-                    btn.disabled = false;
-                }, 2000);
-            }, 3000);
+                    window.location.href = body.redirect_url || '/teacher-results/';
+                }, 1000); 
+                
+            } else {
+                // FAILURE (e.g., 400 validation error, 500 server error)
+                const errors = JSON.stringify(body.errors || body.message || 'Unknown error');
+                alert(`Upload failed! Errors: ${errors}`);
+                
+                // Reset button on failure
+                btn.textContent = 'Upload';
+                btn.disabled = false;
+            }
+        })
+        
+        // 4. Handle Network Errors
+        .catch(error => {
+            console.error('Network Error during upload:', error);
+            alert('A network error occurred. Check your connection or server status.');
+            // Reset button on network error
+            btn.textContent = 'Upload';
+            btn.disabled = false;
         });
-    </script>
+    });
+</script>
 </body>
 </html>

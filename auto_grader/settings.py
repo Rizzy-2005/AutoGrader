@@ -10,11 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+import os
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -26,6 +30,11 @@ SECRET_KEY = 'django-insecure-co)@(gcaqqv351-auxy^q9vi9(@c^vl4k1ph#m*dj2yrr+$@it
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+# 🌟 INSERT THE GEMINI API KEY HERE 🌟
+# This allows your Django views to securely access the key using `settings.GEMINI_API_KEY`.
+GEMINI_API_KEY = "AIzaSyANuU5lrjdwx_-md0ffw84FHB0qip26Ob4" 
+
 
 
 # Application definition

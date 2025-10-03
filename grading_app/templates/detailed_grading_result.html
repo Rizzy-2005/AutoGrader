@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Detailed Grading - {{ upload.id }} - AutoGrader</title>
+    <style>
+        /* General Styles (Keep the existing styles from the teacher_results.html file for consistency) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            color: #1a1a1a;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Dashboard Header - Used for page title */
+        .page-header {
+            padding: 120px 0 40px;
+            text-align: left;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        /* Score Card Specifics */
+        .score-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .score-text h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a4a4a;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1;
+        }
+        
+        .score-subtext {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #666;
+        }
+
+        /* Detail List */
+        .detail-list {
+            list-style: none;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 5px solid #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .detail-item p {
+            font-size: 0.95rem;
+            color: #4a4a4a;
+        }
+
+        .marks-awarded {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: green;
+        }
+        
+        /* Footer (Keep existing styles) */
+        .footer {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .footer-section p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333;
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom p {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            color: #999;
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #fff;
+        }
+         .logout-btn {
+            font-size: 1.2rem; text-decoration: none; color: #1a1a1a;
+            padding: 0.5rem 1rem; border-radius: 50%;
+            background: rgba(0,0,0,0.05); transition: all 0.3s ease;
+        }
+        .logout-btn:hover { background: rgba(0,0,0,0.15); transform: translateY(-2px); }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo">AutoGrader</a>
+
+            <div class="nav-links">
+                <a href="{% url 'teacher_dashboard' %}">Dashboard</a>
+                <a href="{% url 'teacher_results' %}">Grading History</a>
+
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                    </div>
+                    <span>
+                        {{ request.user.first_name|default:request.user.username }}
+                    </span>
+                </div>
+                 <a href="/logout/" class="logout-btn" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Grading Details</h1>
+            <p>Uploaded: {{ upload.uploaded_at|date:"Y-m-d H:i A" }} | Status: <span style="font-weight: 600; color: green;">{{ upload.get_status_display }}</span></p>
+        </div>
+    </section>
+
+    <section class="container">
+        {% if error %}
+        <div class="glass-card">
+            <p style="color: red;">Error: {{ error }}</p>
+        </div>
+        {% else %}
+        <div class="glass-card">
+            <div class="card-header">
+                <span class="card-icon">⭐</span>
+                <h2>Overall Score</h2>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-text">
+                    <h3>Final Grade</h3>
+                    <p>Marks Awarded vs. Total Possible</p>
+                </div>
+                <div class="score-value">
+                    {{ total_awarded }} / {{ total_possible }}
+                </div>
+            </div>
+
+            <div class="card-header" style="margin-top: 3rem;">
+                <span class="card-icon">📝</span>
+                <h2>Question-by-Question Breakdown</h2>
+            </div>
+            
+            <ul class="detail-list">
+                {% for detail in grading_details %}
+                <li class="detail-item">
+                    <h3>
+                        Question {{ detail.question_no }}
+                        <span class="marks-awarded">{{ detail.marks }} marks</span>
+                    </h3>
+                    <p><strong>Reasoning:</strong> {{ detail.reason }}</p>
+                    </li>
+                {% empty %}
+                <li class="detail-item">No detailed grading results found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>AutoGrader</h3>
+                <p>Simplifying the grading process for educators worldwide. Focus on teaching, we'll handle the rest.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/about/">About Us</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Get Started</h3>
+                <ul class="footer-links">
+                    <li><a href="/signup/">Sign Up</a></li>
+                    <li><a href="/login/">Login</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 AutoGrader. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#">📧</a>
+                <a href="#">🐦</a>
+                <a href="#">💼</a>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
