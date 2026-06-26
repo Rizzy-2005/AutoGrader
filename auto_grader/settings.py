@@ -33,8 +33,7 @@ ALLOWED_HOSTS = []
 
 # 🌟 INSERT THE GEMINI API KEY HERE 🌟
 # This allows your Django views to securely access the key using `settings.GEMINI_API_KEY`.
-GEMINI_API_KEY = "AIzaSyANuU5lrjdwx_-md0ffw84FHB0qip26Ob4" 
-
+GEMINI_API_KEY = "set this in .env" 
 
 
 # Application definition
